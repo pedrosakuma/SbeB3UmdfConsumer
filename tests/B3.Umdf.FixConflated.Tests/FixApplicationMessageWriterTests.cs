@@ -95,7 +95,7 @@ public sealed class FixApplicationMessageWriterTests
         Assert.Equal("BVMF", GetRequired(decoded, FixTags.SecurityExchange));
         Assert.Equal("LUX00", GetRequired(decoded, FixTags.DeliverToCompID));
         Assert.Equal("4", GetRequired(decoded, FixTags.NoMDEntries));
-        Assert.Equal("4", GetRequired(decoded, FixTags.TotNumReports));
+        Assert.Equal("1", GetRequired(decoded, FixTags.TotNumReports));
 
         IReadOnlyList<IReadOnlyDictionary<int, string>> entries = ParseSnapshotEntries(decoded);
         Assert.Equal(4, entries.Count);
@@ -106,6 +106,33 @@ public sealed class FixApplicationMessageWriterTests
         Assert.Equal("1", entries[2][FixTags.MDEntryType]);
         Assert.Equal("28.12", entries[2][FixTags.MDEntryPx]);
         Assert.Equal("3", entries[2][FixTags.OrderId]);
+    }
+
+    [Fact]
+    public void SnapshotFullRefresh_Uses_Single_Report_Count_Even_When_Book_Has_Many_Entries()
+    {
+        using var writer = new FixApplicationMessageWriter();
+        var header = new FixApplicationSessionHeader(
+            "SERVER",
+            "CLIENT",
+            12,
+            new DateTimeOffset(2026, 8, 12, 19, 16, 00, TimeSpan.Zero));
+        var request = new FixMarketDataSnapshotRequest(
+            "snap-2",
+            new FixMarketDataInstrument("VALE3", 4321, priceScale: 2));
+        OrderBook book = CreateBook(
+            (1UL, BookSideType.Bid, 5000L, 100L),
+            (2UL, BookSideType.Bid, 4999L, 100L),
+            (3UL, BookSideType.Bid, 4998L, 100L),
+            (4UL, BookSideType.Ask, 5001L, 100L),
+            (5UL, BookSideType.Ask, 5002L, 100L),
+            (6UL, BookSideType.Ask, 5003L, 100L));
+
+        ReadOnlyMemory<byte> frame = writer.WriteSnapshotFullRefresh(header, request, book);
+
+        FixMessage decoded = Decode(frame);
+        Assert.Equal("6", GetRequired(decoded, FixTags.NoMDEntries));
+        Assert.Equal("1", GetRequired(decoded, FixTags.TotNumReports));
     }
 
     private static OrderBook CreateBook(params (ulong OrderId, BookSideType Side, long Price, long Quantity)[] orders)
