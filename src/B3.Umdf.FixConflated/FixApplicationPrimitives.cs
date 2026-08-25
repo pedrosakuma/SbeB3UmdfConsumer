@@ -27,6 +27,13 @@ public enum FixMdUpdateAction : byte
     DeleteThru = (byte)'3',
 }
 
+public enum FixSecurityUpdateAction : byte
+{
+    Add = (byte)'A',
+    Delete = (byte)'D',
+    Modify = (byte)'M',
+}
+
 public readonly record struct FixApplicationSessionHeader(
     string SenderCompId,
     string TargetCompId,
@@ -94,7 +101,9 @@ public readonly record struct FixMarketDataIncrementalEntry(
     long Price = 0,
     long Size = 0,
     ulong OrderId = 0,
-    long TradeId = 0);
+    long TradeId = 0,
+    int PositionNo = 1,
+    int NumberOfOrders = 0);
 
 public interface IFixApplicationHeaderProvider
 {
