@@ -47,6 +47,7 @@ public static class SecurityListMessageBuilder
                 FixApplicationMessageBuilderSupport.AddOptionalString(message, FixApplicationTags.Asset, security.Asset);
                 FixApplicationMessageBuilderSupport.AddOptionalDecimal(message, FixApplicationTags.MinPriceIncrement, security.MinPriceIncrement);
                 FixApplicationMessageBuilderSupport.AddOptionalDecimal(message, FixApplicationTags.TickSizeDenominator, security.TickSizeDenominator);
+                FixApplicationMessageBuilderSupport.AddOptionalDecimal(message, FixApplicationTags.MinOrderQty, security.MinOrderQty);
             }
         }
 

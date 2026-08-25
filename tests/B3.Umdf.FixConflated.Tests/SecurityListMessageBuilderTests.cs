@@ -62,6 +62,7 @@ public sealed class SecurityListMessageBuilderTests
                     Asset = "PETR",
                     MinPriceIncrement = 0.01m,
                     TickSizeDenominator = 1m,
+                    MinOrderQty = 100m,
                     MarketDataFeeds =
                     [
                         new FixMarketDataFeed("BOOK", 10, 1),
@@ -89,6 +90,7 @@ public sealed class SecurityListMessageBuilderTests
                     Asset = "VALE",
                     MinPriceIncrement = 0.01m,
                     TickSizeDenominator = 1m,
+                    MinOrderQty = 200m,
                     MarketDataFeeds =
                     [
                         new FixMarketDataFeed("BOOK", 10, 1)
@@ -104,6 +106,8 @@ public sealed class SecurityListMessageBuilderTests
         Assert.Equal(["PETR4", "VALE3"], FixApplicationMessageTestHelpers.GetAllValues(message, FixApplicationTags.Symbol));
         Assert.Equal(["2", "1"], FixApplicationMessageTestHelpers.GetAllValues(message, FixApplicationTags.NoMdFeedTypes));
         Assert.Equal(["BOOK", "TRADES", "BOOK"], FixApplicationMessageTestHelpers.GetAllValues(message, FixApplicationTags.MdFeedType));
+        Assert.Equal(["1", "1"], FixApplicationMessageTestHelpers.GetAllValues(message, FixApplicationTags.TickSizeDenominator));
+        Assert.Equal(["100", "200"], FixApplicationMessageTestHelpers.GetAllValues(message, FixApplicationTags.MinOrderQty));
 
         FixMessage decoded = FixApplicationMessageTestHelpers.RoundTrip(message);
         Assert.Equal(["10", "1", "10"], FixApplicationMessageTestHelpers.GetAllValues(decoded, FixApplicationTags.MarketDepth));
@@ -111,5 +115,7 @@ public sealed class SecurityListMessageBuilderTests
         Assert.Equal(["BRL", "BRL"], FixApplicationMessageTestHelpers.GetAllValues(decoded, FixApplicationTags.Currency));
         Assert.Equal(["0", "0"], FixApplicationMessageTestHelpers.GetAllValues(decoded, FixApplicationTags.SettlType));
         Assert.Equal(["BRL", "BRL"], FixApplicationMessageTestHelpers.GetAllValues(decoded, FixApplicationTags.SettlCurrency));
+        Assert.Equal(["1", "1"], FixApplicationMessageTestHelpers.GetAllValues(decoded, FixApplicationTags.TickSizeDenominator));
+        Assert.Equal(["100", "200"], FixApplicationMessageTestHelpers.GetAllValues(decoded, FixApplicationTags.MinOrderQty));
     }
 }
