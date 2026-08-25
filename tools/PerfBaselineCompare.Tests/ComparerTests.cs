@@ -138,4 +138,25 @@ public class ComparerTests
         Assert.False(Comparer.ParamsMatch("MessageCount=10000, SymbolCount=512", want));
         Assert.False(Comparer.ParamsMatch("MessageCount=10000", want));
     }
+
+    [Fact]
+    public void ParamsMatch_SupportsAmpersandSeparator()
+    {
+        // BenchmarkDotNet 0.15.x (the version pinned in this repo) emits
+        // "Key=Value&Key2=Value2" with no spaces for multi-parameter rows,
+        // unlike the older comma-separated format covered above. Both must
+        // parse identically or every multi-[Params] baseline silently stops
+        // matching against real BDN output.
+        var parsed = Comparer.ParseBdnParams("MessageCount=10000&SymbolCount=64");
+        Assert.Equal("10000", parsed["MessageCount"]);
+        Assert.Equal("64", parsed["SymbolCount"]);
+
+        var want = new Dictionary<string, JsonElement>
+        {
+            ["MessageCount"] = JsonDocument.Parse("10000").RootElement.Clone(),
+            ["SymbolCount"] = JsonDocument.Parse("64").RootElement.Clone(),
+        };
+        Assert.True(Comparer.ParamsMatch("MessageCount=10000&SymbolCount=64", want));
+        Assert.False(Comparer.ParamsMatch("MessageCount=10000&SymbolCount=512", want));
+    }
 }

@@ -1,0 +1,11 @@
+{
+  "benchmark": "FixConflatedMarketDataPublisherBenchmarks",
+  "method": "FlushNow",
+  "params": { "SymbolCount": 64, "UpdatesPerSymbol": 4 },
+  "captured_at": null,
+  "captured_on": "not yet captured on stable hardware",
+  "runtime": "net10.0 Release",
+  "metrics": {},
+  "tolerance": { "mean_pct": 20, "alloc_pct": 25 },
+  "notes": "Schema-only placeholder for the FIX Conflated sandbox conflation hot path (issue #103 item 5, best-effort): drains queued per-symbol book deltas, conflates them per (SecurityId, Side) bucket, and encodes+flushes one MarketDataIncrementalRefresh per bucket. No prose baseline number exists yet; metrics are omitted on purpose and will be populated once the perf-smoke workflow runs on a stable runner."
+}

@@ -252,8 +252,18 @@ the existing `WireV2` WebSocket path (tracked by issue #103). All listed tooling
   this repo's own code. See its README for setup and known gotchas. Scope
   note: this validates protocol/encoding correctness, not content-level
   fidelity against the real B3 product.
-- **Perf-smoke benchmark coverage** — not yet added (deliberately deferred,
-  best-effort/optional item in issue #103).
+- **Perf-smoke benchmark coverage** —
+  `benchmarks/B3.Umdf.FixConflated.Benchmarks/` (BenchmarkDotNet, wired into
+  the opt-in `.github/workflows/perf-smoke.yml` alongside the Book/Feed
+  suites) covers the encode hot path (`FixApplicationMessageWriter.
+  WriteIncrementalRefresh`/`WriteSnapshotFullRefresh`) and the conflation +
+  encode hot path (`FixConflatedMarketDataPublisher.FlushNow`, exercised via
+  `OnOrderUpdated` deltas fanned out across many symbols). Baselines under
+  `docs/perf/baselines/FixApplicationMessageWriterBenchmarks.*.json` and
+  `FixConflatedMarketDataPublisherBenchmarks.*.json` are currently
+  schema-only placeholders (no committed prose number to seed them from);
+  see `docs/perf/baselines/README.md` for how to populate real numbers once
+  captured on a stable runner. Closes issue #103 item 5 (best-effort/optional).
 
 ### Message-content validation against real B3 sample captures
 

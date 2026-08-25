@@ -85,10 +85,13 @@ required-checks list.
 
 ## Why some files are schema-only
 
-`BookSideBenchmarks.*.json` and `MpscPacketRingBenchmarks.*.json` ship
-without populated `metrics`. The committed prose docs don't include a
-single defensible number for those benchmarks in isolation, so we'd
-rather commit a no-metric placeholder (which the comparer treats as
-"matched but nothing to gate on") than fabricate numbers that quietly
-drift. Populating those numbers is a follow-up to issue #19 and should
-happen the first time the perf-smoke workflow runs on a stable runner.
+`BookSideBenchmarks.*.json`, `MpscPacketRingBenchmarks.*.json`, and the
+`FixApplicationMessageWriterBenchmarks.*.json` /
+`FixConflatedMarketDataPublisherBenchmarks.*.json` pair ship without
+populated `metrics`. The committed prose docs don't include a single
+defensible number for those benchmarks in isolation, so we'd rather
+commit a no-metric placeholder (which the comparer treats as "matched
+but nothing to gate on") than fabricate numbers that quietly drift.
+Populating those numbers is a follow-up to issue #19 (and, for the FIX
+Conflated pair, issue #103 item 5) and should happen the first time the
+perf-smoke workflow runs on a stable runner.
