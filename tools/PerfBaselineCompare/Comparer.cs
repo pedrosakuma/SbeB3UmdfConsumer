@@ -153,7 +153,12 @@ public static class Comparer
     {
         var result = new Dictionary<string, string>(StringComparer.Ordinal);
         if (string.IsNullOrWhiteSpace(parameters)) return result;
-        foreach (var part in parameters.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+
+        // BenchmarkDotNet has used both "Key=Value, Key2=Value2" (older
+        // versions) and "Key=Value&Key2=Value2" (0.15.x, no spaces) for the
+        // multi-parameter "Parameters" summary string. Split on either
+        // separator so baselines keep matching regardless of BDN version.
+        foreach (var part in parameters.Split([',', '&'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
             var eq = part.IndexOf('=');
             if (eq <= 0) continue;
