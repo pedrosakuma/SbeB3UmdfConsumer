@@ -76,6 +76,7 @@ public sealed record FixSecurityListEntry
     public string? Asset { get; init; }
     public decimal? MinPriceIncrement { get; init; }
     public decimal? TickSizeDenominator { get; init; }
+    public decimal? MinOrderQty { get; init; }
 }
 
 public sealed record FixSecurityListDefinition
@@ -235,7 +236,8 @@ internal static class FixApplicationTags
     public const int SecurityUpdatesSince = 6935;
     public const int Language = 6936;
     public const int Asset = 6937;
-    public const int TickSizeDenominator = 9749;
+    public const int TickSizeDenominator = 5151;
+    public const int MinOrderQty = 9749;
     public const int NewsSource = 6940;
     public const int InstrumentId = 9219;
     public const int NoSecurityGroups = 37022;
