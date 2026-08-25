@@ -32,8 +32,12 @@ public sealed class FixConflatedMarketDataPublisherTests
         Assert.Equal(2, entries.Count);
         Assert.Equal("0", entries[0][FixTags.MDUpdateAction]);
         Assert.Equal("28.10", entries[0][FixTags.MDEntryPx]);
+        Assert.Equal("1", entries[0][FixTags.MDEntryPositionNo]);
+        Assert.Equal("1", entries[0][FixTags.NumberOfOrders]);
         Assert.Equal("1", entries[1][FixTags.MDUpdateAction]);
         Assert.Equal("28.11", entries[1][FixTags.MDEntryPx]);
+        Assert.Equal("2", entries[1][FixTags.MDEntryPositionNo]);
+        Assert.Equal("1", entries[1][FixTags.NumberOfOrders]);
     }
 
     [Fact]
@@ -124,6 +128,8 @@ public sealed class FixConflatedMarketDataPublisherTests
         Assert.Single(entries);
         Assert.Equal("3", entries[0][FixTags.MDUpdateAction]);
         Assert.Equal("0", entries[0][FixTags.MDEntryType]);
+        Assert.Equal("1", entries[0][FixTags.MDEntryPositionNo]);
+        Assert.False(entries[0].ContainsKey(FixTags.NumberOfOrders));
         Assert.False(entries[0].ContainsKey(FixTags.OrderId));
         Assert.False(entries[0].ContainsKey(FixTags.MDEntryPx));
     }

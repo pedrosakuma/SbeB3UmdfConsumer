@@ -287,9 +287,11 @@ public sealed class FixConflatedMarketDataPublisher : IBookEventHandler, IDispos
                 {
                     List<QueuedBookDelta> deltas = _bufferedBookDeltas[key];
                     var entries = new FixMarketDataIncrementalEntry[deltas.Count];
+                    int positionNo = 1;
                     for (int i = 0; i < deltas.Count; i++)
                     {
                         QueuedBookDelta delta = deltas[i];
+                        int numberOfOrders = delta.UpdateAction == FixMdUpdateAction.DeleteThru ? 0 : 1;
                         entries[i] = new FixMarketDataIncrementalEntry(
                             delta.UpdateAction,
                             key.EntryType,
@@ -297,7 +299,9 @@ public sealed class FixConflatedMarketDataPublisher : IBookEventHandler, IDispos
                             delta.Fields,
                             delta.Price,
                             delta.Size,
-                            delta.OrderId);
+                            delta.OrderId,
+                            PositionNo: positionNo++,
+                            NumberOfOrders: numberOfOrders);
                     }
 
                     bookBatches.Add(new BufferedBatch(key.SecurityId, entries));
