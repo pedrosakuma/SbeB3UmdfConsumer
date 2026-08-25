@@ -24,7 +24,9 @@ public sealed class FixApplicationMessageWriterTests
                 FixMarketDataEntryFields.Price | FixMarketDataEntryFields.Size | FixMarketDataEntryFields.OrderId,
                 Price: 2810,
                 Size: 100,
-                OrderId: 501),
+                OrderId: 501,
+                PositionNo: 1,
+                NumberOfOrders: 1),
             new(
                 FixMdUpdateAction.Change,
                 FixMdEntryType.Bid,
@@ -32,7 +34,9 @@ public sealed class FixApplicationMessageWriterTests
                 FixMarketDataEntryFields.Price | FixMarketDataEntryFields.Size | FixMarketDataEntryFields.OrderId,
                 Price: 2811,
                 Size: 120,
-                OrderId: 501),
+                OrderId: 501,
+                PositionNo: 2,
+                NumberOfOrders: 1),
         ];
 
         ReadOnlyMemory<byte> frame = writer.WriteIncrementalRefresh(header, instrument, entries);
@@ -59,11 +63,13 @@ public sealed class FixApplicationMessageWriterTests
         Assert.Equal("100", parsedEntries[0][FixTags.MDEntrySize]);
         Assert.Equal("3", parsedEntries[0][FixTags.MDStreamId]);
         Assert.Equal("1", parsedEntries[0][FixTags.NumberOfOrders]);
+        Assert.Equal("1", parsedEntries[0][FixTags.MDEntryPositionNo]);
         Assert.Equal("501", parsedEntries[0][FixTags.OrderId]);
 
         Assert.Equal("1", parsedEntries[1][FixTags.MDUpdateAction]);
         Assert.Equal("28.11", parsedEntries[1][FixTags.MDEntryPx]);
         Assert.Equal("120", parsedEntries[1][FixTags.MDEntrySize]);
+        Assert.Equal("2", parsedEntries[1][FixTags.MDEntryPositionNo]);
     }
 
     [Fact]
@@ -102,10 +108,52 @@ public sealed class FixApplicationMessageWriterTests
         Assert.Equal("0", entries[0][FixTags.MDEntryType]);
         Assert.Equal("28.10", entries[0][FixTags.MDEntryPx]);
         Assert.Equal("1", entries[0][FixTags.MDEntryPositionNo]);
+        Assert.Equal("1", entries[0][FixTags.NumberOfOrders]);
         Assert.Equal("1", entries[0][FixTags.OrderId]);
+        Assert.Equal("2", entries[1][FixTags.MDEntryPositionNo]);
+        Assert.Equal("1", entries[1][FixTags.NumberOfOrders]);
         Assert.Equal("1", entries[2][FixTags.MDEntryType]);
         Assert.Equal("28.12", entries[2][FixTags.MDEntryPx]);
+        Assert.Equal("1", entries[2][FixTags.MDEntryPositionNo]);
+        Assert.Equal("1", entries[2][FixTags.NumberOfOrders]);
         Assert.Equal("3", entries[2][FixTags.OrderId]);
+    }
+
+    [Fact]
+    public void SnapshotFullRefresh_Uses_Price_Level_Position_And_Aggregated_Order_Count()
+    {
+        using var writer = new FixApplicationMessageWriter();
+        var header = new FixApplicationSessionHeader(
+            "SERVER",
+            "CLIENT",
+            12,
+            new DateTimeOffset(2026, 8, 12, 19, 16, 00, TimeSpan.Zero));
+        var request = new FixMarketDataSnapshotRequest(
+            "snap-2",
+            new FixMarketDataInstrument("PETR4", 1234, priceScale: 2));
+        OrderBook book = CreateBook(
+            (1UL, BookSideType.Bid, 2810L, 100L),
+            (2UL, BookSideType.Bid, 2810L, 80L),
+            (3UL, BookSideType.Bid, 2809L, 150L),
+            (4UL, BookSideType.Ask, 2812L, 90L),
+            (5UL, BookSideType.Ask, 2813L, 110L),
+            (6UL, BookSideType.Ask, 2813L, 70L));
+
+        ReadOnlyMemory<byte> frame = writer.WriteSnapshotFullRefresh(header, request, book);
+
+        IReadOnlyList<IReadOnlyDictionary<int, string>> entries = ParseSnapshotEntries(Decode(frame));
+        Assert.Equal("1", entries[0][FixTags.MDEntryPositionNo]);
+        Assert.Equal("2", entries[0][FixTags.NumberOfOrders]);
+        Assert.Equal("1", entries[1][FixTags.MDEntryPositionNo]);
+        Assert.Equal("2", entries[1][FixTags.NumberOfOrders]);
+        Assert.Equal("2", entries[2][FixTags.MDEntryPositionNo]);
+        Assert.Equal("1", entries[2][FixTags.NumberOfOrders]);
+        Assert.Equal("1", entries[3][FixTags.MDEntryPositionNo]);
+        Assert.Equal("1", entries[3][FixTags.NumberOfOrders]);
+        Assert.Equal("2", entries[4][FixTags.MDEntryPositionNo]);
+        Assert.Equal("2", entries[4][FixTags.NumberOfOrders]);
+        Assert.Equal("2", entries[5][FixTags.MDEntryPositionNo]);
+        Assert.Equal("2", entries[5][FixTags.NumberOfOrders]);
     }
 
     [Fact]
