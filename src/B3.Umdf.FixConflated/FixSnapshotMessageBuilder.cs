@@ -20,7 +20,7 @@ internal static class FixSnapshotMessageBuilder
         message.Add(FixTags.SecurityId, request.Instrument.SecurityId.ToString(CultureInfo.InvariantCulture));
 
         int entryCount = book.Bids.OrderCount + book.Asks.OrderCount;
-        message.Add(FixTags.TotNumReports, entryCount);
+        message.Add(FixTags.TotNumReports, 1);
         message.Add(FixTags.NoMDEntries, entryCount);
 
         string entryDate = entryTime.UtcDateTime.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
@@ -38,8 +38,10 @@ internal static class FixSnapshotMessageBuilder
         string entryDate,
         string entryTime)
     {
+        int positionNo = 1;
         foreach (KeyValuePair<long, List<OrderBookEntry>> level in side.PriceLevels)
         {
+            int numberOfOrders = level.Value.Count;
             foreach (OrderBookEntry order in level.Value)
             {
                 message.Add(FixTags.MDEntryType, ((char)entryType).ToString());
@@ -49,9 +51,12 @@ internal static class FixSnapshotMessageBuilder
                 message.Add(FixTags.MDEntryTime, entryTime);
                 message.Add(FixTags.MDInsertDate, entryDate);
                 message.Add(FixTags.MDInsertTime, entryTime);
-                message.Add(FixTags.MDEntryPositionNo, 1);
+                message.Add(FixTags.MDEntryPositionNo, positionNo);
+                message.Add(FixTags.NumberOfOrders, numberOfOrders);
                 message.Add(FixTags.OrderId, order.OrderId.ToString(CultureInfo.InvariantCulture));
             }
+
+            positionNo++;
         }
     }
 

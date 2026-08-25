@@ -165,7 +165,7 @@ public sealed class FixApplicationMessageWriter : IDisposable
         offset += WriteStringField(destination[offset..], FixTags.MDReqId, request.MdReqId);
         offset += WriteStringField(destination[offset..], FixTags.Symbol, request.Instrument.Symbol);
         offset += WriteUInt64Field(destination[offset..], FixTags.SecurityId, request.Instrument.SecurityId);
-        offset += WriteIntField(destination[offset..], FixTags.TotNumReports, entryCount);
+        offset += WriteIntField(destination[offset..], FixTags.TotNumReports, 1);
         offset += WriteIntField(destination[offset..], FixTags.NoMDEntries, entryCount);
 
         offset += WriteSnapshotSide(destination[offset..], book.Bids, FixMdEntryType.Bid, request.Instrument.PriceScale, header.SendingTime);
@@ -181,8 +181,10 @@ public sealed class FixApplicationMessageWriter : IDisposable
         DateTimeOffset entryTime)
     {
         int offset = 0;
+        int positionNo = 1;
         foreach (var (_, orders) in side.PriceLevels)
         {
+            int numberOfOrders = orders.Count;
             foreach (var order in orders)
             {
                 offset += WriteCharField(destination[offset..], FixTags.MDEntryType, (char)entryType);
@@ -192,9 +194,12 @@ public sealed class FixApplicationMessageWriter : IDisposable
                 offset += WriteUtcTimeField(destination[offset..], FixTags.MDEntryTime, entryTime);
                 offset += WriteUtcDateField(destination[offset..], FixTags.MDInsertDate, entryTime);
                 offset += WriteUtcTimeField(destination[offset..], FixTags.MDInsertTime, entryTime);
-                offset += WriteIntField(destination[offset..], FixTags.MDEntryPositionNo, 1);
+                offset += WriteIntField(destination[offset..], FixTags.MDEntryPositionNo, positionNo);
+                offset += WriteIntField(destination[offset..], FixTags.NumberOfOrders, numberOfOrders);
                 offset += WriteUInt64Field(destination[offset..], FixTags.OrderId, order.OrderId);
             }
+
+            positionNo++;
         }
 
         return offset;
