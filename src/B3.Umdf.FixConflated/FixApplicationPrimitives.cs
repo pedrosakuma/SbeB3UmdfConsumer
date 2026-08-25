@@ -94,7 +94,9 @@ public readonly record struct FixMarketDataIncrementalEntry(
     long Price = 0,
     long Size = 0,
     ulong OrderId = 0,
-    long TradeId = 0);
+    long TradeId = 0,
+    int PositionNo = 1,
+    int NumberOfOrders = 0);
 
 public interface IFixApplicationHeaderProvider
 {

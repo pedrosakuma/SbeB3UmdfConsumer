@@ -132,8 +132,9 @@ public sealed class FixApplicationMessageWriter : IDisposable
             offset += WriteUtcDateField(destination[offset..], FixTags.MDInsertDate, entry.EntryTime);
             offset += WriteUtcTimeField(destination[offset..], FixTags.MDInsertTime, entry.EntryTime);
             offset += WriteStringField(destination[offset..], FixTags.MDStreamId, instrument.MdStreamId);
-            offset += WriteIntField(destination[offset..], FixTags.MDEntryPositionNo, 1);
-            offset += WriteIntField(destination[offset..], FixTags.NumberOfOrders, 1);
+            offset += WriteIntField(destination[offset..], FixTags.MDEntryPositionNo, entry.PositionNo);
+            if (entry.NumberOfOrders > 0)
+                offset += WriteIntField(destination[offset..], FixTags.NumberOfOrders, entry.NumberOfOrders);
             offset += WriteStringField(destination[offset..], FixTags.QuoteCondition, "A");
             offset += WriteStringField(destination[offset..], FixTags.OpenCloseSettlFlag, "0");
 
