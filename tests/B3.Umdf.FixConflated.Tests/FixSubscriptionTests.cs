@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace B3.Umdf.FixConflated.Tests;
 
+[Collection(nameof(AllocationSensitiveCollection))]
 public sealed class FixSubscriptionTests
 {
     [Fact]
@@ -165,9 +166,9 @@ public sealed class FixSubscriptionTests
             var snapshotProvider = new FixInitialSnapshotProvider([bookManager], resolver);
             var requestHandler = new FixMarketDataRequestHandler(snapshotProvider, resolver);
             var hub = new FixConflatedSessionHub();
-            int port = GetFreeTcpPort();
             var server = new FixConflatedTcpServer(hub, new FixConflatedTcpServerOptions { OutboundQueueCapacity = 64 }, null, requestHandler);
-            await server.StartAsync(port);
+            await server.StartAsync(0);
+            int port = server.Port;
 
             var tcpClientA = new TcpClient { NoDelay = true };
             await tcpClientA.ConnectAsync(IPAddress.Loopback, port);
@@ -202,14 +203,6 @@ public sealed class FixSubscriptionTests
             TcpClientA.Dispose();
             TcpClientB.Dispose();
             await Server.DisposeAsync();
-        }
-
-        private static int GetFreeTcpPort()
-        {
-            var listener = new TcpListener(IPAddress.Loopback, 0);
-            listener.Start();
-            try { return ((IPEndPoint)listener.LocalEndpoint).Port; }
-            finally { listener.Stop(); }
         }
     }
 }
