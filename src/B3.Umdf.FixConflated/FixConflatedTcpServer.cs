@@ -43,7 +43,7 @@ public sealed class FixConflatedTcpServer : IAsyncDisposable
 
     public Task StartAsync(int port, CancellationToken cancellationToken = default)
     {
-        if (port is < 1 or > 65535)
+        if (port is < 0 or > 65535)
             throw new ArgumentOutOfRangeException(nameof(port));
         if (_listener is not null)
             throw new InvalidOperationException("FIX conflated TCP server already started.");
